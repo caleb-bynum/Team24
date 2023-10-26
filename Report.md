@@ -2,9 +2,9 @@
 
 ## 1. Group members:
 1. Caleb Bynum
-2. 
-3. Third
-4. Fourth
+2. Josef Munduchirakal
+3. Aazmir Lakhani
+4. Tyler Roosth
 
 ---
 
