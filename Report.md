@@ -9,16 +9,21 @@
 ---
 
 ## 2. _due 10/25_ Project topic
-Implementing parallel sorting algorithms (quickSort, selectionSort, insertionSort) using MPI and CUDA, and then performing comparison analysis on them.
-## 2. _due 10/25_ Brief project description (what algorithms will you be comparing and on what architectures)
+Implementing parallel sorting algorithms (mergeSort, sampleSort, enumerationSort, oddEvenTranspositionSort) using MPI and CUDA, and then performing comparison analysis on them.
 
-For example:
-- QuickSort (MPI + CUDA)
-- QuickSort (MPI)
-- QuickSort (sequential)
-- SelectionSort (MPI + CUDA)
-- SelectionSort (MPI)
-- SelectionSort (sequential)
-- InsertionSort (MPI + CUDA)
-- InsertionSort (MPI)
-- InsertionSort (sequential)
+---
+
+## 3. _due 10/25_ Brief project description (what algorithms will you be comparing and on what architectures)
+### 1. MergeSort
+#### MPI
+#### CUDA
+### 2. SampleSort
+#### MPI 
+#### CUDA
+### 3. EnumerationSort
+#### MPI
+#### CUDA
+### 4. OddEvenTranspositionSort
+#### MPI
+#### CUDA
+
