@@ -1,0 +1,19 @@
+MPI Implementation Pseudocode
+
+Variables:
+    p : number of processes
+    global_n : number of elements in global array
+    local_n : number of elements in processes' local array
+    local_A : each processes' local array
+
+Main Procedure:
+    1. Perform MPI initialization functions
+    2. Allocate local_A
+    3. Populate local_A 
+    4. Call Sort on each process
+
+Interpreting the sorted array
+The global list can be formed by concatenating each local array
+in ascending order by rank.
+
+
