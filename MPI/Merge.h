@@ -1,12 +1,12 @@
 /*
-Contains the sub-procedures:
-- Merge_high()
-- Merge_low()
+Contains two sub-procedures:
+- Merge_Low()
+- Merge_High()
 */
 
 /* Given sorted arrays A and B, populate C with the larger half of elements from A and B.
    Then, copy the elements from C back into A. */
-void Merge_high(double* local_A, double* temp_B, double* temp_C, int local_n) {
+void Merge_High(double* local_A, double* temp_B, double* temp_C, int local_n) {
     int ai = local_n - 1;
     int bi = local_n - 1;
     int ci = local_n - 1;
@@ -28,7 +28,7 @@ void Merge_high(double* local_A, double* temp_B, double* temp_C, int local_n) {
 }
 
 /* Given sorted arrays A and B, populate C with the smaller half of elements from A and B */
-void Merge_low(double* local_A, double* temp_B, double* temp_C, int local_n) {
+void Merge_Low(double* local_A, double* temp_B, double* temp_C, int local_n) {
     int ai = 0;
     int bi = 0;
     int ci = 0;

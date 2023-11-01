@@ -20,7 +20,7 @@ int main() {
     double C_high[4] = { 5, 6, 7, 8 };
     double C_low[4] = { 1, 2, 3, 4 };
 
-    Merge_high(A, B, C, n);
+    Merge_High(A, B, C, n);
 
     // assert that C_high and C are equal
     std::cout << "Merge_high..." << std::endl;
@@ -34,7 +34,7 @@ int main() {
     A[2] = 6;
     A[3] = 7;
 
-    Merge_low(A, B, C, n);
+    Merge_Low(A, B, C, n);
 
     // assert C_low and C are equal
     std::cout << "Merge_low..." << std::endl;
