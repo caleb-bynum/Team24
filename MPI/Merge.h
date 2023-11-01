@@ -3,8 +3,6 @@ Contains the sub-procedures:
 - Merge_high()
 - Merge_low()
 */
-#include <iostream>
-
 
 /* Given sorted arrays A and B, populate C with the larger half of elements from A and B.
    Then, copy the elements from C back into A. */
