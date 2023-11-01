@@ -1,6 +1,7 @@
 #include <iostream>
 #include "mpi.h"
 
+/* Based on the current phase, use MPI to exchange elements with partner process. Merge these elements locally */
 void Odd_Even_Iteration( double* local_A, double* temp_B, double* temp_C, int local_n, int my_rank, MPI_comm comm, int phase, int even_partner, int odd_partner ) {
     MPI_Status status;
 
