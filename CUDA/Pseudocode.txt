@@ -1,0 +1,30 @@
+CUDA Implementation Pseudocode
+
+Variables:
+    n : number of elements to sorted
+    t : number of threads
+    A : array to be sorted
+
+Idea: avoid coordination between threads by strategically launching kernels
+      and subsequently synchronzing.
+
+Main Procedure:
+    1. Copy A to GPU memory
+    2. for each phase:
+    3.   if even:
+    4.     <<<even>>>
+    5.   else:
+    6.     <<<odd>>>
+    7.   synchronize 
+    8. Copy A to device memory
+
+Kernel Procedure for odd phase:
+    1. calculate i
+    2. calculate partner thread index
+    3. compare and swap with partner
+
+Kernel Procedure for even phase:
+    1. calculate i
+    2. calculate partner thread index
+    3. compare and swap with partner
+
