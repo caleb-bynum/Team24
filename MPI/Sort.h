@@ -18,6 +18,7 @@ int Compare( const void* a_p, const void* b_p ) {
     }
 }
 
+/* Given array and MPI parameters, executes OddEvenTranspositionSort */
 void Sort( double* local_A, double* tempB, double* temp_C, int local_n, int p, int my_rank, MPI_Comm comm ) {
     /* allocate additional local memory */
     double* temp_B = malloc( local_n * sizeof(double) );
