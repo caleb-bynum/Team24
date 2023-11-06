@@ -81,10 +81,8 @@ int main( int argc, char* argv[] ) {
         MPI_Send( local_A, local_n, MPI_DOUBLE, 0, 0, comm );
     }
 
-
     /* finalize program */
     free( local_A );
     MPI_Finalize();
-
     return 0;
 }
