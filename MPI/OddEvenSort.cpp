@@ -82,7 +82,7 @@ int main( int argc, char* argv[] ) {
             }
         }
         free(global_A);
-        printf( "Correctness check passed (if no preceding errors).\n")
+        printf( "Correctness check passed (if no preceding errors).\n");
     }
     else {
         MPI_Send( local_A, local_n, MPI_DOUBLE, 0, 0, comm );
