@@ -57,11 +57,30 @@ int main( int argc, char* argv[] ) {
     Sort( local_A, local_n, p, my_rank, comm );
     MPI_Barrier( comm );
 
-    /* print process number and local array contents */
-    printf( "Process %d > ", my_rank );
-    for ( int i = 0; i < local_n; i++ ) {
-        printf( "%f ", local_A[i] );
+    /* check correctness of sorting */
+    if ( my_rank == 0 ) {
+        for ( int i = 1; i < p; i++ ) {
+            double* temp = (double*) malloc( local_n * sizeof(double) );
+            MPI_Recv( temp, local_n, MPI_DOUBLE, i, 0, comm, MPI_STATUS_IGNORE );
+            for ( int j = 0; j < local_n; j++ ) {
+                local_A[j + i * local_n] = temp[j];
+            }
+            free( temp );
+        }
+        for ( int i = 1; i < global_n; i++ ) {
+            if ( local_A[i - 1] > local_A[i] ) {
+                printf( "Error: local_A[%d] = %f > local_A[%d] = %f\n", i - 1, local_A[i - 1], i, local_A[i] );
+                fflush( stdout );
+                break;
+            }
+        }
+        /* print if array sorted */
+        printf( "Correctness check passed (if no preceding errors).\n" );
     }
+    else {
+        MPI_Send( local_A, local_n, MPI_DOUBLE, 0, 0, comm );
+    }
+
 
     /* finalize program */
     free( local_A );
