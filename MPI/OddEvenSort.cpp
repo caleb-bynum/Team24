@@ -12,13 +12,16 @@ void Get_args( int argc, char* argv[], int my_rank, int p, MPI_Comm comm, int* g
             *global_n_p = strtol( argv[1], NULL, 10 );
         }
     }
-    MPI_Bcast( global_n_p, 1, MPI_INT, 0, comm );
+    /* broadcast global array size to all processes */
+    MPI_Bcast( global_n_p, 1, MPI_INT, 0, comm ); //
 
+    /* check for invalid input */
     if ( *global_n_p <= 0 ) {
         MPI_Finalize();
         exit( -1 );
     }
 
+    /* calculate local_n */
     *local_n_p = *global_n_p / p;
 }
 
@@ -53,7 +56,7 @@ int main( int argc, char* argv[] ) {
     MPI_Barrier( comm );
     Sort( local_A, local_n, p, my_rank, comm );
     MPI_Barrier( comm );
-    
+
     /* print process number and local array contents */
     printf( "Process %d > ", my_rank );
     for ( int i = 0; i < local_n; i++ ) {
@@ -61,7 +64,7 @@ int main( int argc, char* argv[] ) {
     }
 
     /* finalize program */
-    free(local_A);
+    free( local_A );
     MPI_Finalize();
 
     return 0;
