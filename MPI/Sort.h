@@ -1,5 +1,4 @@
 #include <stdlib.h> /* STL Quicksort */
-#include <mpi.h> /* MPI API */
 #include "OddEvenIteration.h" /* Odd_Even_Iteration */
 
 /* Compare function required by qsort */
