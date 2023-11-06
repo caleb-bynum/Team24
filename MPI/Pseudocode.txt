@@ -9,17 +9,17 @@ Variables in main:
 Main Procedure:
     1. Perform MPI initialization functions
     2. Allocate local_A
-    3. Populate local_A 
+    3. Populate local_A
     4. Call Sort on each process
     5. MPI Finalize
 
 Interpreting the sorted array:
-The global list can be formed by concatenating each local array
-in ascending order by process rank.
+The global array can be formed by concatenating each local array
+in ascending order by process rank. In MPI, this can be done with MPI_Gather()
 
 Variables in Sort:
     my_rank : the current processes' rank
-    comm : MPI_comm
+    comm : MPI_COMM_WORLD
     phase : counter to track current phase, ranges from 0 to p
     temp_B : temporary local storage for MPI_Sendrecv
     temp_C : temporary local storage for Merge_high or Merge_low
@@ -37,12 +37,12 @@ Sort Procedure:
     5. Call quickSort on local_A
     6. For each phase:
     7.   Call Odd-Even-Iterate
-    8. Free temp_B
-    9. Free temp_C
+    8. Deallocate temp_B
+    9. Deallocate temp_C
 
 Variables in Odd-Even-Iterate:
     my_rank : the current processes' rank
-    comm : MPI_comm
+    comm : MPI_COMM_WORLD
     status : MPI_status
     phase : counter to track current phase, ranges from 0 to p
     temp_B : temporary local storage for MPI_Sendrecv
