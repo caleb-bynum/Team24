@@ -10,21 +10,24 @@ Idea: avoid coordination between threads by strategically launching kernels
 
 Main Procedure:
     1. Copy A to GPU memory
-    2. for each phase:
-    3.   if even:
-    4.     <<<even>>>
+    2. for each phase in {0, 1, ..., n-1}:
+    3.   if phase is even:
+    4.     launch EvenPhase kernel
     5.   else:
-    6.     <<<odd>>>
-    7.   synchronize 
+    6.     launch OddPhase kernel
+    7.   synchronize device
     8. Copy A to device memory
 
-Kernel Procedure for odd phase:
-    1. calculate i
-    2. calculate partner thread index
-    3. compare and swap with partner
+EvenPhase Kernel:
+    1. Id = threadId + blockDim * blockId
+    2. index1 = 2 * Id
+    3. index2 = index1 + 1
+    4. compare and swap array elements at index1, index2
 
-Kernel Procedure for even phase:
-    1. calculate i
-    2. calculate partner thread index
-    3. compare and swap with partner
+OddPhase Kernel:
+    1. Id = threadId + blockDim * blockId
+    2. index1 = 2 * Id + 1
+    3. index2 = index1 + 1
+    4. if thread is not the last thread
+    5.   compare and swap array elements at index1, index2
 
