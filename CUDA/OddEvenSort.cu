@@ -1,5 +1,5 @@
-
-/* CUDA Implementation Pseudocode
+/* 
+CUDA Implementation Pseudocode
 
 Variables:
     n : number of elements to sorted
@@ -32,3 +32,53 @@ OddPhase Kernel:
     4. if thread is not the last thread
     5.   compare and swap array elements at index1, index2
 */
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+/*
+#include <caliper/cali.h>
+#include <caliper/cali-manager.h>
+#include <adiak.hpp> 
+*/
+
+int THREADS_PER_BLOCK;
+int BLOCKS;
+int NUM_VALS;
+
+float random_float() {
+    return (float)rand() / (float)RAND_MAX;
+}
+
+void fill_array(float* A, int n) {
+    for (int i = 0; i < n; i++) {
+        A[i] = random_float();
+    }
+}
+
+void print_array(float* A, int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%f ", A[i]);
+    }
+    printf("\n");
+}
+
+void compare_and_swap(float* A, int i, int j) {
+    if (A[i] > A[j]) {
+        float temp = A[i];
+        A[i] = A[j];
+        A[j] = temp;
+    }
+}
+
+void odd_even_sort(float* A) {
+    /* allocate space on GPU */
+    float* device_A;
+    size_t size_bytes = NUM_VALS * sizeof(float);
+    cudaMalloc( (void**)&device_A, size_bytes );
+
+    /* copy A to GPU */
+    cudaMemcpy( device_A, A, size_bytes, cudaMemcpyHostToDevice );
+    
+}
