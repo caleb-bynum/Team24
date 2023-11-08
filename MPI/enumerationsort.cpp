@@ -144,10 +144,14 @@ int main(int argc, char *argv[]) {
 		//gettimeofday(&end, NULL);
    }
 
+   //wait for everything to be processed
    MPI_Barrier(MPI_COMM_WORLD);
 
+   //value to be used
    int value;     
 
+
+   //swap reg z values 
    for (int i = 0; i < numprocs; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
       if (myid == i) {
@@ -161,18 +165,21 @@ int main(int argc, char *argv[]) {
       } else
          value = REG_EMPTY;
 
+      //MPI broadcast index wait for message
       MPI_Bcast(&value, 1, MPI_INT, i, MPI_COMM_WORLD);
 
       if (myid == i && compare != myid) {
          MPI_Send(&reg_x, 1, MPI_INT, compare, REG_TAG_Z, MPI_COMM_WORLD);
       }
-
+      //reg z values
       if (value == myid) {
          MPI_Recv(&reg_z, 1, MPI_INT, i, REG_TAG_Z, MPI_COMM_WORLD, &stat);
          z_count++;
       }
    }
 
+
+   //print result
    for (int i = 0; i < numprocs; ++i) {
       if (myid == 0) {
          if (reg_z != REG_EMPTY) {
