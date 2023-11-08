@@ -72,7 +72,25 @@ void compare_and_swap(float* A, int i, int j) {
     }
 }
 
-void odd_even_sort(float* A) {
+__global__ void even_phase(float* A) {
+    int Id = threadIdx.x + blockDim.x * blockIdx.x;
+    int index1 = 2 * Id;
+    int index2 = index1 + 1;
+    compare_and_swap(A, index1, index2);
+}
+
+__global__ void odd_phase(float* A) {
+    int Id = threadIdx.x + blockDim.x * blockIdx.x;
+    int index1 = 2 * Id + 1;
+    int index2 = index1 + 1;
+    if (index2 < NUM_VALS) {
+        compare_and_swap(A, index1, index2);
+    }
+}
+
+
+void odd
+_even_sort(float* A) {
     /* allocate space on GPU */
     float* device_A;
     size_t size_bytes = NUM_VALS * sizeof(float);
@@ -80,5 +98,7 @@ void odd_even_sort(float* A) {
 
     /* copy A to GPU */
     cudaMemcpy( device_A, A, size_bytes, cudaMemcpyHostToDevice );
-    
+
+
+
 }
