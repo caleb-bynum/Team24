@@ -169,5 +169,14 @@ OddPhase Kernel:
     5.   compare and swap array elements at index1, index2
 
 
+## 5. Evaluation plan - what and how we will measure performance
+### For each algorithm, we plan to measure the runtime of various components with our programs with respect to input size.
+### In testing, we plan to vary the array input sizes with the following counts {2^16, 2^20, 2^24} 
+### Input properties of float arrays to be tested: { randomized, reversed, sorted }
+### We plan to evaluate how our algorithms behave with respect to Strong Scaling (same problem size {2^24}, increase number of processors/nodes)
+#### MPI Strong Scaling: increase number of cores {2, 4, 8, 16, 32, 64}
+#### CUDA Strong Scaling: number of threads per block {64, 128, 512, 1024}
+### Weak scaling (increase problem size, increase number of processors)
+### Number of threads in a block on the GPU
 
 
