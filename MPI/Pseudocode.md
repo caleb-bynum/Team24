@@ -8,7 +8,10 @@
   D_list: final doubles list to store the sorted value
 
 ### Main Function Logic:
-  
+  1. MPI_Init, Size, and Rank to set up MPI parallel functionality
+  2. Create all the random values in the main thread only
+  3. Set the displacements and sort each value inti their respective buckets in the main thread only
+  4. Scatter, Sort, and Gather each individual bucket in their own thread
   
 ### Compare Function Logic:
   This is a customer comparator function that is designed to help the custom_qsort function sort through doubles.
