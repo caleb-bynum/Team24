@@ -57,23 +57,14 @@ int main( int argc, char* argv[] ) {
     Sort( local_A, local_n, p, my_rank, comm );
     MPI_Barrier( comm );
 
+    /* initialize global array */
+    double* global_A = (double*) malloc( global_n * sizeof(double));
+
+    /* gather each processes' local_A array and place into global_A */
+    MPI_Gather( local_A, local_n, MPI_DOUBLE, global_A, local_n, MPI_DOUBLE, 0, comm );
+    
     /* check correctness of sorting */
     if ( my_rank == 0 ) {
-        /* initialize global array */
-        double* global_A = (double*) malloc( global_n * sizeof(double));
-        /* populate global array with root's local array */
-        for ( int i = 0; i < local_n; i++ ) {
-            global_A[i] = local_A[i];
-        }
-        /* receive the local array of each non-root process (rank > 0) */
-        for ( int i = 1; i < p; i++ ) {
-            double* temp = (double*) malloc( local_n * sizeof(double) );
-            MPI_Recv( temp, local_n, MPI_DOUBLE, i, 0, comm, MPI_STATUS_IGNORE );
-            for ( int j = 0; j < local_n; j++ ) {
-                global_A[j + i * local_n] = temp[j];
-            }
-            free( temp );
-        }
         for ( int i = 1; i < global_n; i++ ) {
             if ( global_A[i - 1] > global_A[i] ) {
                 printf( "Error: global_A[%d] = %f > global_A[%d] = %f\n", i - 1, global_A[i - 1], i, global_A[i] );
