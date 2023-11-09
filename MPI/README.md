@@ -1,7 +1,7 @@
 # CSCE435 Project
 
 ### Variables in main:
-
+ 
   Pivots: Array of random double to be sorted.
   Bucket_Num: Array to track the number of values that are being sent to each processor
   Displacements: Storage for displacement data for scatter and gather functionality
