@@ -8,7 +8,7 @@
 
 ---
 
-## 2. _due 10/25_ Project topic
+## 2. Project topic
 Implementing parallel sorting algorithms (mergeSort, sampleSort, enumerationSort, oddEvenTranspositionSort) using MPI and CUDA, and then performing comparison analysis on them.
 
 ---
