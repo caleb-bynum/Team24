@@ -36,6 +36,9 @@ OddPhase Kernel:
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
+
+
 
 /*
 #include <caliper/cali.h>
@@ -106,4 +109,36 @@ void odd_even_sort(float* A) {
         }
         cudaDeviceSynchronize();
     }
+}
+
+int main(int argc, char** argv) {
+    /* initialize random seed */
+    srand(time(NULL));
+
+    /* get command line arguments */
+    if (argc != 3) {
+        printf("Usage: ./odd_even_sort <num_vals> <threads_per_block>\n");
+        exit(1);
+    }
+
+    NUM_VALS = atoi(argv[1]);
+    THREADS_PER_BLOCK = atoi(argv[2]);
+    BLOCKS = NUM_VALS / THREADS_PER_BLOCK;
+
+    /* allocate space for array */
+    float* A = (float*)malloc(NUM_VALS * sizeof(float));
+
+    /* fill array with random values */
+    fill_array(A, NUM_VALS);
+
+    /* sort array */
+    odd_even_sort(A);
+
+    /* print sorted array */
+    print_array(A, NUM_VALS);
+
+    /* free memory */
+    free(A);
+
+    return 0;
 }
