@@ -71,12 +71,13 @@ void fill_array_sorted(float* A, int n) {
 }
 
 /* reverse sorted input */
-fill_array_reversed(float* A, int n) {
+void fill_array_reverse_sorted(float* A, int n) {
     for (int i = 0; i < n; i++) {
         A[i] = (float)(n - i) / (float)n;
     }
 }
 
+/* print for debugging purposes */
 void print_array(float* A, int n) {
     for (int i = 0; i < n; i++) {
         printf("%f ", A[i]);
@@ -84,6 +85,7 @@ void print_array(float* A, int n) {
     printf("\n");
 }
 
+/* check that array is sorted */
 bool correctness_check(float* A, int n) {
     for (int i = 0; i < n - 1; i++) {
         if (A[i] > A[i+1]) {
@@ -93,6 +95,7 @@ bool correctness_check(float* A, int n) {
     return true;
 }
 
+/* compare and swap for CUDA threads */
 __device__ void compare_and_swap(float* A, int i, int j) {
     if (A[i] > A[j]) {
         float temp = A[i];

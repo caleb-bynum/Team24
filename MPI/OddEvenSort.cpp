@@ -8,6 +8,28 @@
 #include <caliper/cali-manager.h>
 #include <adiak.hpp>
 
+/* fill array with random values */
+void fill_array_random( double* local_A, int local_n, int my_rank ) {
+    srand( my_rank + 1 );
+    for ( int i = 0; i < local_n; i++ ) {
+        local_A[i] = random() / (double) RAND_MAX;
+    }
+}
+
+/* fill array with sorted values */
+void fill_array_sorted( double* local_A, int local_n, int global_n, int my_rank ) {
+    for ( int i = 0; i < local_n; i++ ) {
+        local_A[i] = (((float) my_rank) + ((float) i)) / ((float) global_n);
+    }
+}
+
+
+void fill_array_reverse_sorted( double* local_A, int local_n, int global_n, int my_rank ) {
+    for ( int i = 0; i < local_n; i++ ) {
+        local_A[i] = (((float) my_rank) + ((float) local_n) - ((float) i)) / ((float) global_n);
+    }
+}
+
 /* function to get command line arguments*/
 void Get_args( int argc, char* argv[], int my_rank, int p, MPI_Comm comm, int* global_n_p, int* local_n_p ) {
     if ( my_rank == 0 ) {
@@ -55,10 +77,7 @@ int main( int argc, char* argv[] ) {
     local_A = (double*) malloc( local_n * sizeof(double) );
 
     /* generate random values in array */
-    srandom( my_rank + 1 );
-    for ( int i = 0; i < local_n; i++ ) {
-        local_A[i] = random() / (double) RAND_MAX;
-    }
+    fill_array_random( local_A, local_n, my_rank );
 
     /* start main procedure */
     MPI_Barrier( comm );
