@@ -69,6 +69,15 @@ void print_array(float* A, int n) {
     printf("\n");
 }
 
+bool correctness_check(float* A, int n) {
+    for (int i = 0; i < n - 1; i++) {
+        if (A[i] > A[i+1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 __device__ void compare_and_swap(float* A, int i, int j) {
     if (A[i] > A[j]) {
         float temp = A[i];
@@ -143,8 +152,14 @@ int main(int argc, char** argv) {
     odd_even_sort(A, NUM_VALS);
 
     /* print sorted array */
-    print_array(A, NUM_VALS);
+    // print_array(A, NUM_VALS);
 
+    /* check correctness */
+    if (correctness_check(A, NUM_VALS)) {
+        printf("Correctness check passed\n");
+    } else {
+        printf("Correctness check failed\n");
+    }
     /* free memory */
     free(A);
 
