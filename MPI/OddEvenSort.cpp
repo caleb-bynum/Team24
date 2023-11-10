@@ -1,5 +1,13 @@
 #include "Sort.h" /* Odd-Even Sorting Routine */
 
+#include "mpi.h"
+#include <stdio.h>
+#include <limits.h>
+
+#include <caliper/cali.h>
+#include <caliper/cali-manager.h>
+#include <adiak.hpp>
+
 /* function to get command line arguments*/
 void Get_args( int argc, char* argv[], int my_rank, int p, MPI_Comm comm, int* global_n_p, int* local_n_p ) {
     if ( my_rank == 0 ) {

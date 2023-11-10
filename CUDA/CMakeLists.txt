@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(bitonic LANGUAGES CUDA CXX)
+project(OddEvenSort LANGUAGES CUDA CXX)
 
 find_package(MPI REQUIRED)
 find_package(caliper REQUIRED)

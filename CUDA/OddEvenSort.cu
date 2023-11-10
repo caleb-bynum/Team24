@@ -38,7 +38,9 @@ OddPhase Kernel:
 #include <stdio.h>
 #include <time.h>
 
-
+#include <caliper/cali.h>
+#include <caliper/cali-manager.h>
+#include <adiak.hpp>
 
 /*
 #include <caliper/cali.h>
@@ -67,7 +69,7 @@ void print_array(float* A, int n) {
     printf("\n");
 }
 
-void compare_and_swap(float* A, int i, int j) {
+__device__ void compare_and_swap(float* A, int i, int j) {
     if (A[i] > A[j]) {
         float temp = A[i];
         A[i] = A[j];
@@ -82,22 +84,22 @@ __global__ void even_phase(float* A) {
     compare_and_swap(A, index1, index2);
 }
 
-__global__ void odd_phase(float* A, int num_vals) {
+__global__ void odd_phase(float* A, int numVals) {
     int Id = threadIdx.x + blockDim.x * blockIdx.x;
     int index1 = 2 * Id + 1;
     int index2 = index1 + 1;
-    if (index2 < num_vals) {
+    if (index2 < numVals) {
         compare_and_swap(A, index1, index2);
     }
 }
 
-void odd_even_sort(float* A) {
+void odd_even_sort(float* A, int numVals) {
     /* allocate space on GPU */
     float* device_A;
     size_t size_bytes = NUM_VALS * sizeof(float);
     cudaMalloc( (void**)&device_A, size_bytes );
 
-    /* copy A to GPU */
+    /* copy CPU array to GPU */
     cudaMemcpy( device_A, A, size_bytes, cudaMemcpyHostToDevice );
 
     /* iterate through each phase, launching the appropriate kernel */
@@ -105,10 +107,16 @@ void odd_even_sort(float* A) {
         if (phase % 2 == 0) {
             even_phase<<<BLOCKS, THREADS_PER_BLOCK>>>(device_A);
         } else {
-            odd_phase<<<BLOCKS, THREADS_PER_BLOCK>>>(device_A, NUM_VALS);
+            odd_phase<<<BLOCKS, THREADS_PER_BLOCK>>>(device_A, numVals);
         }
         cudaDeviceSynchronize();
     }
+
+    /* copy GPU array back to Host */
+    cudaMemcpy( A, device_A, size_bytes, cudaMemcpyDeviceToHost );
+
+    /* free GPU memory */
+    cudaFree(device_A);
 }
 
 int main(int argc, char** argv) {
@@ -132,7 +140,7 @@ int main(int argc, char** argv) {
     fill_array(A, NUM_VALS);
 
     /* sort array */
-    odd_even_sort(A);
+    odd_even_sort(A, NUM_VALS);
 
     /* print sorted array */
     print_array(A, NUM_VALS);
