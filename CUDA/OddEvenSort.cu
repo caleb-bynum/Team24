@@ -56,9 +56,24 @@ float random_float() {
     return (float)rand() / (float)RAND_MAX;
 }
 
-void fill_array(float* A, int n) {
+/* random input */
+void fill_array_random(float* A, int n) {
     for (int i = 0; i < n; i++) {
         A[i] = random_float();
+    }
+}
+
+/* sorted input */
+void fill_array_sorted(float* A, int n) {
+    for (int i = 0; i < n; i++) {
+        A[i] = (float)i / (float)n;
+    }
+}
+
+/* reverse sorted input */
+fill_array_reversed(float* A, int n) {
+    for (int i = 0; i < n; i++) {
+        A[i] = (float)(n - i) / (float)n;
     }
 }
 
@@ -146,7 +161,7 @@ int main(int argc, char** argv) {
     float* A = (float*)malloc(NUM_VALS * sizeof(float));
 
     /* fill array with random values */
-    fill_array(A, NUM_VALS);
+    fill_array_random(A, NUM_VALS);
 
     /* sort array */
     odd_even_sort(A, NUM_VALS);
