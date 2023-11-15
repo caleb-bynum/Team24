@@ -4,10 +4,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include <caliper/cali.h>
-#include <caliper/cali-manager.h>
-#include <adiak.hpp>
-
 /* fill array with random values */
 void fill_array_random( double* local_A, int local_n, int my_rank ) {
     srand( my_rank + 1 );
@@ -56,6 +52,11 @@ void Get_args( int argc, char* argv[], int my_rank, int p, MPI_Comm comm, int* g
 }
 
 int main( int argc, char* argv[] ) {
+    /* Initialize CALI */
+    cali::ConfigManager mgr;
+    mgr.start();
+    CALI_MARK_BEGIN("main");
+
     /* MPI variables */
     int p; // number of processes
     int my_rank; 
@@ -76,21 +77,50 @@ int main( int argc, char* argv[] ) {
     Get_args( argc, argv, my_rank, p, comm, &global_n, &local_n );
     local_A = (double*) malloc( local_n * sizeof(double) );
 
+    /* Adiak variables */
+    const char* algorithm = "OddEvenSort";
+    const char* programmingModel = "MPI";
+    const char* datatype = "double";
+    const int sizeOfDatatype = sizeof(double);
+    const int inputSize = global_n;
+    const char* inputType = "Random";
+    const int num_procs = p;
+    const int group_number = 1; // unsure what this is
+    const char* implementation_source = "Handwritten+Online";
+
     /* generate random values in array */
+    CALI_MARK_BEGIN("data_init");
     fill_array_random( local_A, local_n, my_rank );
+    CALI_MARK_END("data_init");
+
 
     /* start main procedure */
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_small");
     MPI_Barrier( comm );
+    CALI_MARK_END("comm_small");
+    CALI_MARK_END("comm");
+
     Sort( local_A, local_n, p, my_rank, comm );
+
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_small");
     MPI_Barrier( comm );
+    CALI_MARK_END("comm_small");
+    CALI_MARK_END("comm");
 
     /* initialize global array */
     double* global_A = (double*) malloc( global_n * sizeof(double));
 
     /* gather each processes' local_A array and place into global_A */
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     MPI_Gather( local_A, local_n, MPI_DOUBLE, global_A, local_n, MPI_DOUBLE, 0, comm );
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
     
     /* check correctness of sorting */
+    CALI_MARK_BEGIN("correctness_check");
     if ( my_rank == 0 ) {
         for ( int i = 1; i < global_n; i++ ) {
             if ( global_A[i - 1] > global_A[i] ) {
@@ -105,12 +135,9 @@ int main( int argc, char* argv[] ) {
     else {
         MPI_Send( local_A, local_n, MPI_DOUBLE, 0, 0, comm );
     }
+    CALI_MARK_END("correctness_check");
 
-    /* finalize program */
-    free( local_A );
-    MPI_Finalize();
-
-    /* Adiak Metadata
+    /* Adiak Metadata */
     adiak::init(NULL);
     adiak::launchdate();    // launch date of the job
     adiak::libraries();     // Libraries used
@@ -123,9 +150,14 @@ int main( int argc, char* argv[] ) {
     adiak::value("InputSize", inputSize); // The number of elements in input dataset (1000)
     adiak::value("InputType", inputType); // For sorting, this would be "Sorted", "ReverseSorted", "Random", "1%perturbed"
     adiak::value("num_procs", num_procs); // The number of processors (MPI ranks)
-    adiak::value("num_threads", num_threads); // The number of CUDA or OpenMP threads
-    adiak::value("num_blocks", num_blocks); // The number of CUDA blocks 
     adiak::value("group_num", group_number); // The number of your group (integer, e.g., 1, 10)
-    adiak::value("implementation_source", implementation_source) // Where you got the source code of your algorithm; choices: ("Online", "AI", "Handwritten").
-    */
+    adiak::value("implementation_source", implementation_source); // Where you got the source code of your algorithm; choices: ("Online", "AI", "Handwritten").
+    
+    /* finalize program */
+    free( local_A );
+    MPI_Finalize();
+    mgr.stop();
+    mgr.flush();
+    CALI_MARK_END("main");
+
 }

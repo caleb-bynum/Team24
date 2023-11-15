@@ -38,15 +38,11 @@ OddPhase Kernel:
 #include <stdio.h>
 #include <time.h>
 
+#include <cuda.h>
 #include <caliper/cali.h>
 #include <caliper/cali-manager.h>
 #include <adiak.hpp>
 
-/*
-#include <caliper/cali.h>
-#include <caliper/cali-manager.h>
-#include <adiak.hpp> 
-*/
 
 int THREADS_PER_BLOCK;
 int BLOCKS;
@@ -108,16 +104,25 @@ __global__ void even_phase(float* A) {
     int Id = threadIdx.x + blockDim.x * blockIdx.x;
     int index1 = 2 * Id;
     int index2 = index1 + 1;
+
+ 
     compare_and_swap(A, index1, index2);
+
 }
 
 __global__ void odd_phase(float* A, int numVals) {
+    
+   
     int Id = threadIdx.x + blockDim.x * blockIdx.x;
     int index1 = 2 * Id + 1;
     int index2 = index1 + 1;
+  
+
+
     if (index2 < numVals) {
         compare_and_swap(A, index1, index2);
     }
+   
 }
 
 void odd_even_sort(float* A, int numVals) {
@@ -127,20 +132,41 @@ void odd_even_sort(float* A, int numVals) {
     cudaMalloc( (void**)&device_A, size_bytes );
 
     /* copy CPU array to GPU */
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     cudaMemcpy( device_A, A, size_bytes, cudaMemcpyHostToDevice );
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
 
     /* iterate through each phase, launching the appropriate kernel */
     for (int phase = 0; phase < NUM_VALS; phase++) {
         if (phase % 2 == 0) {
+            CALI_MARK_BEGIN("comp");
+            CALI_MARK_BEGIN("comp_large");
             even_phase<<<BLOCKS, THREADS_PER_BLOCK>>>(device_A);
+            CALI_MARK_END("comp_large");
+            CALI_MARK_END("comp");
         } else {
+            CALI_MARK_BEGIN("comp");
+            CALI_MARK_BEGIN("comp_large");
             odd_phase<<<BLOCKS, THREADS_PER_BLOCK>>>(device_A, numVals);
+            CALI_MARK_END("comp_large");
+            CALI_MARK_END("comp");
         }
+
+        CALI_MARK_BEGIN("comm");
+        CALI_MARK_BEGIN("comm_small");
         cudaDeviceSynchronize();
+        CALI_MARK_END("comm_small");
+        CALI_MARK_END("comm");
     }
 
     /* copy GPU array back to Host */
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     cudaMemcpy( A, device_A, size_bytes, cudaMemcpyDeviceToHost );
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
 
     /* free GPU memory */
     cudaFree(device_A);
@@ -149,6 +175,11 @@ void odd_even_sort(float* A, int numVals) {
 int main(int argc, char** argv) {
     /* initialize random seed */
     srand(time(NULL));
+
+    /* Initialize CALI */
+    cali::ConfigManager mgr;
+    mgr.start();
+    CALI_MARK_BEGIN("main");
 
     /* get command line arguments */
     if (argc != 3) {
@@ -160,11 +191,26 @@ int main(int argc, char** argv) {
     THREADS_PER_BLOCK = atoi(argv[2]);
     BLOCKS = NUM_VALS / THREADS_PER_BLOCK;
 
+    /* Adiak Variables */
+    std::string algorithm = "OddEvenSort";
+    std::string programmingModel = "CUDA";
+    std::string datatype = "float";
+    int sizeOfDatatype = sizeof(float);
+    int inputSize = NUM_VALS;
+    std::string inputType = "Random";
+    int num_threads = THREADS_PER_BLOCK;
+    int num_blocks = BLOCKS;
+    int group_number = 1;
+    std::string implementation_source = "Handwritten+Online";
+
+
     /* allocate space for array */
     float* A = (float*)malloc(NUM_VALS * sizeof(float));
 
     /* fill array with random values */
+    CALI_MARK_BEGIN("data_init");
     fill_array_random(A, NUM_VALS);
+    CALI_MARK_END("data_init");
 
     /* sort array */
     odd_even_sort(A, NUM_VALS);
@@ -173,15 +219,15 @@ int main(int argc, char** argv) {
     // print_array(A, NUM_VALS);
 
     /* check correctness */
+    CALI_MARK_BEGIN("correctness_check");
     if (correctness_check(A, NUM_VALS)) {
         printf("Correctness check passed\n");
     } else {
         printf("Correctness check failed\n");
     }
-    /* free memory */
-    free(A);
+    CALI_MARK_END("correctness_check");
 
-    /* Adiak metadata 
+    /* Adiak metadata */
     adiak::init(NULL);
     adiak::launchdate();    // launch date of the job
     adiak::libraries();     // Libraries used
@@ -193,10 +239,14 @@ int main(int argc, char** argv) {
     adiak::value("SizeOfDatatype", sizeOfDatatype); // sizeof(datatype) of input elements in bytes (e.g., 1, 2, 4)
     adiak::value("InputSize", inputSize); // The number of elements in input dataset (1000)
     adiak::value("InputType", inputType); // For sorting, this would be "Sorted", "ReverseSorted", "Random", "1%perturbed"
-    adiak::value("num_procs", num_procs); // The number of processors (MPI ranks)
     adiak::value("num_threads", num_threads); // The number of CUDA or OpenMP threads
     adiak::value("num_blocks", num_blocks); // The number of CUDA blocks 
     adiak::value("group_num", group_number); // The number of your group (integer, e.g., 1, 10)
-    adiak::value("implementation_source", implementation_source) // Where you got the source code of your algorithm; choices: ("Online", "AI", "Handwritten").
-    */
+    adiak::value("implementation_source", implementation_source); // Where you got the source code of your algorithm; choices: ("Online", "AI", "Handwritten").
+    
+    /* finalize program */
+    free(A);
+    mgr.stop();
+    mgr.flush();
+    CALI_MARK_END("main");
 }

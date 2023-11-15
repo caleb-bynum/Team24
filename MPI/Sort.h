@@ -1,6 +1,8 @@
 #include <stdlib.h> /* STL Quicksort */
 #include "OddEvenIteration.h" /* Odd_Even_Iteration */
 
+
+
 /* Compare function required by qsort */
 int Compare( const void* a_p, const void* b_p ) {
     double a = * (double*) a_p;
@@ -27,6 +29,8 @@ void Sort( double* local_A, int local_n, int p, int my_rank, MPI_Comm comm ) {
     int odd_partner;
 
     /* determine partners for even and odd phases */
+    CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_small");
     if ( my_rank % 2 ) {
         even_partner = my_rank - 1;
         odd_partner = my_rank + 1;
@@ -41,9 +45,15 @@ void Sort( double* local_A, int local_n, int p, int my_rank, MPI_Comm comm ) {
         }
         odd_partner = my_rank - 1;
     }
+    CALI_MARK_END("comp_small");
+    CALI_MARK_END("comp");
 
     /* use built-in quicksort for each local array */
+    CALI_MARK_BEGIN("comp");
+    CALI_MARK_BEGIN("comp_large");
     qsort( local_A, local_n, sizeof(double), Compare );
+    CALI_MARK_END("comp_large");
+    CALI_MARK_END("comp");
 
     /* execute odd or even exchange procedure, depending on phase */
     for ( int phase = 0; phase < p; phase++ ) {
