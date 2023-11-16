@@ -39,23 +39,33 @@ void bucket_sort(float *data, int elements)
     cudaMalloc((void **)&d_bucket_counters, BUCKETS * sizeof(int));
     cudaMemset(d_bucket_counters, 0, BUCKETS * sizeof(int));
 
-    // CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN("comm_large");
     cudaMemcpy(d_data, data, elements * sizeof(float), cudaMemcpyHostToDevice);
-    // CALI_MARK_END(comm);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END(comm);
 
     bucket_sort_kernel<<<(elements + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(d_data, d_bucket_counters, elements, BUCKETS);
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN("comm_small");
     cudaDeviceSynchronize();
+    CALI_MARK_END("comm_small");
+    CALI_MARK_END(comm);
 
     std::vector<int> h_bucket_counters(BUCKETS);
 
-    // CALI_MARK_BEGIN(cudaMemcpy_region);
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN("comm_large");
     cudaMemcpy(h_bucket_counters.data(), d_bucket_counters, BUCKETS * sizeof(int), cudaMemcpyDeviceToHost);
-    // CALI_MARK_END(cudaMemcpy_region);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END(comm);
 
     thrust::sort(thrust::device, d_data, d_data + elements);
-    // CALI_MARK_BEGIN(cudaMemcpy_region);
+    CALI_MARK_BEGIN(comm);
+    CALI_MARK_BEGIN("comm_large");
     cudaMemcpy(data, d_data, elements * sizeof(float), cudaMemcpyDeviceToHost);
-    // CALI_MARK_END(cudaMemcpy_region);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END(comm);
 
     cudaFree(d_data);
     cudaFree(d_bucket_counters);
@@ -80,9 +90,11 @@ int main(int argc, char *argv[])
 
     bucket_sort(data.data(), num_elements);
 
+    CALI_MARK_BEGIN("correctness_check");
     for (int i = 0; i < num_elements; ++i)
         std::cout << data[i] << ' ';
     std::cout << std::endl;
+    CALI_MARK_END("correctness_check");
 
     adiak::init(NULL);
     adiak::launchdate();                           // launch date of the job

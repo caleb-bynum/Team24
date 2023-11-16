@@ -7,11 +7,6 @@
 #include <adiak.hpp>
 
 const char* data_init = "data_init";    
-const char* scatter = "scatter";
-const char* comp_small = "comp_small";
-const char* comp_large = "comp_large";
-const char* scatterv = "scatterv";
-const char* gatherv = "gatherv";
 
 int compare(const void* first, const void* second){
     double diff = *(double*)first - *(double*)second;
@@ -39,7 +34,6 @@ void custom_qsort(double *input, int input_size){
 
 
 int main(int argc, char *argv[]){
-    CALI_CXX_MARK_FUNCTION;
     cali::ConfigManager mgr;
     mgr.start();
 
@@ -67,9 +61,9 @@ int main(int argc, char *argv[]){
     }
     CALI_MARK_END(data_init);
 
-    CALI_MARK_BEGIN(scatter);
+    CALI_MARK_BEGIN("scatter");
     MPI_Scatter(bucket_num, 1, MPI_INT, bucket_size, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    CALI_MARK_END(scatter);
+    CALI_MARK_END("scatter");
     double *bucket_list = (double*)malloc(bucket_size[0]*sizeof(double));
 
     if(rank == 0){
@@ -91,13 +85,20 @@ int main(int argc, char *argv[]){
         free(index);
     }
 
-    CALI_MARK_BEGIN(scatterv);
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     MPI_Scatterv(d_list, bucket_num, displacements, MPI_DOUBLE, bucket_list, bucket_size[0], MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    CALI_MARK_END(scatterv);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
+
     custom_qsort(bucket_list, bucket_size[0]);
-    CALI_MARK_BEGIN(gatherv);
+
+    
+    CALI_MARK_BEGIN("comm");
+    CALI_MARK_BEGIN("comm_large");
     MPI_Gatherv(bucket_list, bucket_size[0], MPI_DOUBLE, d_list, bucket_num, displacements, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    CALI_MARK_END(gatherv);
+    CALI_MARK_END("comm_large");
+    CALI_MARK_END("comm");
     double end_time = MPI_Wtime();
 
     free(bucket_list);
@@ -124,4 +125,7 @@ int main(int argc, char *argv[]){
         adiak::value("implementation_source", "Mix of Handwritted and AI and Online"); // Where you got the source code of your algorithm; choices: ("Online", "AI", "Handwritten").
     }
     MPI_Finalize();
+    mgr.stop();
+    mgr.flush();
+    CALI_MARK_END("main");
 }
