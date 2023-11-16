@@ -11,4 +11,4 @@ MPI:<br>
    Data is currently randomly generated, will add more options for evaluation later<br>
 
 
-  Currently data type is INT, will change to float for evaluations <br>
+ 
