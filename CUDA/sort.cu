@@ -63,7 +63,6 @@ void bucket_sort(float *data, int elements)
 
 int main(int argc, char *argv[])
 {
-    CALI_CXX_MARK_FUNCTION;
     cali::ConfigManager mgr;
     mgr.start();
     CALI_MARK_BEGIN("main");
