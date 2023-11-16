@@ -26,4 +26,4 @@ module load CUDA                #load CUDA module
 module load GCCcore/7.3.0
 #
 
-./bitonic
+./Sort $num_threads $num_vals
