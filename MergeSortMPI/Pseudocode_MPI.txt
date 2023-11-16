@@ -1,0 +1,25 @@
+Define a function 'merge' to combine two sorted sub-arrays into a single sorted array.
+
+Define a function 'merge_sort' that sorts an array using the merge sort algorithm:
+    If the array has more than one element, divide it into two sub-arrays.
+    Recursively sort both sub-arrays.
+    Merge the sorted sub-arrays into one.
+
+Define the 'main' function:
+    Initialize Caliper for profiling.
+    Initialize MPI environment and get rank and size of the MPI world.
+    If the rank is 0 (master):
+        Initialize the data array with random numbers.
+        Print the initial unsorted array.
+    Broadcast the array size to all MPI processes.
+    Divide the data array among processes, assigning a sub-array to each.
+    Perform local merge sort on each process's sub-array.
+    Iteratively merge sorted data across processes by:
+        Sending sorted sub-arrays to the appropriate process if not a receiver in the current step.
+        Receiving and merging sorted sub-arrays from other processes if a receiver.
+    If rank is 0 (master), after the final merge:
+        Print the sorted array.
+        Check if the data is correctly sorted and print the result.
+    Clean up dynamic memory allocations if any.
+    Finalize Caliper and MPI environment.
+    Return from the program.
