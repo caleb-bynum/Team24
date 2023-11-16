@@ -188,7 +188,12 @@ int main(int argc, char** argv) {
     }
 
     NUM_VALS = atoi(argv[1]);
+    // print NUM_VALS
+    printf("NUM_VALS: %d\n", NUM_VALS);
+
     THREADS_PER_BLOCK = atoi(argv[2]);
+    // print THREADS_PER_BLOCK
+    printf("THREADS: %d\n", THREADS_PER_BLOCK);
     BLOCKS = NUM_VALS / THREADS_PER_BLOCK;
 
     /* Adiak Variables */
@@ -201,7 +206,7 @@ int main(int argc, char** argv) {
     int num_threads = THREADS_PER_BLOCK;
     int num_blocks = BLOCKS;
     int group_number = 1;
-    std::string implementation_source = "Handwritten+Online";
+    std::string implementation_source = "Handwritten";
 
 
     /* allocate space for array */
