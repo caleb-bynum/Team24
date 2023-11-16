@@ -63,8 +63,10 @@ void bucket_sort(float *data, int elements)
 
 int main(int argc, char *argv[])
 {
+    CALI_CXX_MARK_FUNCTION;
     cali::ConfigManager mgr;
     mgr.start();
+    CALI_MARK_BEGIN("main");
 
     BUCKETS = atoi(argv[1]);
     const int num_elements = atoi(argv[2]);
@@ -101,4 +103,5 @@ int main(int argc, char *argv[])
 
     mgr.stop();
     mgr.flush();
+    CALI_MARK_END("main");
 }
